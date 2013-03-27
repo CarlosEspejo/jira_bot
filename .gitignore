@@ -18,3 +18,4 @@ _yardoc
 doc/
 bin/results.txt
 issues.txt
+.DS_Store
