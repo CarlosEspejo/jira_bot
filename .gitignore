@@ -16,4 +16,7 @@ tmp
 .yardoc
 _yardoc
 doc/
+
 issues.txt
+results.txt
+bin/results.txt
