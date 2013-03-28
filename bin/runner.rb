@@ -1,4 +1,4 @@
-require '../lib/jira_data'
+require_relative '../lib/jira_data'
 require 'pry'
 
 j = JiraData.new
