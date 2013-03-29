@@ -10,9 +10,4 @@ describe JiraData do
   it "should have stop words" do
     JiraData.new.stop_words.count.wont_equal 0
   end
-
-  it "should train" do
-    j = JiraData.new
-    j.train '../issues.txt'
-  end
 end

@@ -17,5 +17,6 @@ tmp
 _yardoc
 doc/
 bin/results.txt
+results.txt
 issues.txt
 .DS_Store
