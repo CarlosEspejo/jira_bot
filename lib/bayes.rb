@@ -1,6 +1,6 @@
 require 'pry'
 
-class NaiveBayes
+class Bayes
   attr_reader  :stop_words, :categories, :training_count
 
   def initialize
@@ -64,7 +64,7 @@ class NaiveBayes
   def weighted_word_in_category_prob(category, word, weight=1.0, ap=0.5)
     basic_prob = word_in_category_prob(category, word)
     totals = categories.map{|cat, c| categories[cat][word]}.inject{|sum, v| sum + v}
-    (weight * ap) + (totals * basic_prob)/(weight + totals)
+    ((weight * ap) + (totals * basic_prob)) / (weight + totals)
   end
 
 end
