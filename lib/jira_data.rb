@@ -3,44 +3,63 @@ require 'json'
 require 'pry'
 
 class JiraData < TextData
-  attr_accessor :assignee_list
+  attr_accessor :data, :assignees
 
-  def train(file)
-    issues = JSON.parse IO.read(File.expand_path(file, File.dirname(__FILE__))), :symbolize_names => true
+  def init
+    @data = JSON.parse IO.read(File.expand_path(uri, File.dirname(__FILE__))), :symbolize_names => true
+    get_assignees
+  end
 
+  def word_freq
     list = Hash.new(0)
-    issues.each do |i|
-      list[i[:fields][:assignee][:name].downcase] += 1
-    end
-
-    @assignee_list= list
-
-    common = Hash.new(0)
-    issues_count = 0
-    issues.find_all{|f| ['carlos', 'cespejo'].include? f[:fields][:assignee][:name].downcase}.each do |i|
+    data.each do |d|
 
       text = ''
-      text << i[:fields][:summary]
-      text << " " + i[:fields][:description] unless i[:fields][:description].nil?
+      text << d[:fields][:summary] if d[:fields][:summary]
+      text << ' '
+      text << d[:fields][:description] if d[:fields][:description]
 
-      words = text.downcase.scan(/[a-z]+/)
-
-      clean_words = words - stop_words
-
-      clean_words.each do |w|
-        common[w] += 1
-      end
-
-      issues_count += 1
-    end
-
-    File.open('results.txt', 'w') do |f|
-      f.puts "Carlos \t #{issues_count} tickets \t #{common.size} common words\n\n"
-      f.puts "Common Words\n"
-
-      common.sort_by{|k,v|  v}.reverse.each do |k, y|
-        f.puts "#{k}            #{y}"
+      text.downcase.scan(/[a-z]+/).each do |w|
+        list[w] += 1 unless stop_words.include? w
       end
     end
+
+    list.sort_by{|word, count| count}.reverse
   end
+
+  def split_on_topic(topic)
+
+    topics = []
+    data.each do |d|
+
+      text = ''
+      text << d[:fields][:summary] if d[:fields][:summary]
+      text << ' '
+      text << d[:fields][:description] if d[:fields][:description]
+
+      if text =~ /#{topic}/
+        topics << d
+      end
+    end
+    topics 
+  end
+
+  
+  def train(file)
+
+  end
+
+  private
+
+  def get_assignees
+    unless @assignees
+      list = Hash.new(0)
+      data.each do |i|
+        list[i[:fields][:assignee][:name].downcase] += 1
+      end
+    end
+
+    @assignees = list
+  end
+
 end
