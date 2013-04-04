@@ -1,12 +1,11 @@
-require 'pry'
-
 class Bayes
-  attr_reader  :stop_words, :categories, :training_count
+  attr_reader  :stop_words, :categories, :training_count, :threshold
 
   def initialize
     @stop_words = IO.read(File.expand_path('./stop_words.txt', File.dirname(__FILE__))).split
     @categories = {}
     @training_count = Hash.new(0)
+    @threshold = 1.5
   end
 
   def tokenize(text)
@@ -30,7 +29,21 @@ class Bayes
     train 'good', 'the quick brown fox jumps'
   end
 
-  def word_in_category_prob(category, word)
+  def classify(text, th=nil)
+    results = {}
+    th ||= threshold
+
+    categories.each do|cat, v|
+      results[cat] = prob(cat, text)
+    end
+    
+    first, second = results.values.sort.reverse
+
+    (first/second) > th ? format(results) : :unknown
+  end
+
+  private
+  def word_prob(category, word)
     word_count(category, word) / document_count(category)
   end
 
@@ -50,7 +63,7 @@ class Bayes
   def document_prob(category, text)
     words = tokenize text
     total = 1.0
-    words.each{|w, c| total *= word_in_category_prob(category, w)}
+    words.each{|w, c| total *= weighted_word_prob(category, w)}
     total
   end
 
@@ -61,10 +74,14 @@ class Bayes
     doc_prob * category_prob
   end
 
-  def weighted_word_in_category_prob(category, word, weight=1.0, ap=0.5)
-    basic_prob = word_in_category_prob(category, word)
+  def weighted_word_prob(category, word, weight=1.0, ap=0.5)
+    basic_prob = word_prob(category, word)
     totals = categories.map{|cat, c| categories[cat][word]}.inject{|sum, v| sum + v}
     ((weight * ap) + (totals * basic_prob)) / (weight + totals)
+  end
+
+  def format(data)
+    data.each{|k, v| data[k] = "#{v * 100}%"}
   end
 
 end
