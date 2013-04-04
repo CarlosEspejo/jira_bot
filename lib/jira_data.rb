@@ -1,30 +1,47 @@
 require_relative 'text_data'
+require_relative 'bayes'
 require 'json'
+require 'benchmark'
 require 'pry'
 
 class JiraData < TextData
-  attr_accessor :data, :assignees
+  attr_accessor :data, :assignees, :bay, :word_excludes
 
   def init
     @data = JSON.parse IO.read(File.expand_path(uri, File.dirname(__FILE__))), :symbolize_names => true
+    @bay = Bayes.new
+    @word_excludes = IO.read(File.expand_path('./word_excludes.txt', File.dirname(__FILE__))).split
     get_assignees
   end
 
-  def word_freq
-    list = Hash.new(0)
-    data.each do |d|
-
-      text = ''
-      text << d[:fields][:summary] if d[:fields][:summary]
-      text << ' '
-      text << d[:fields][:description] if d[:fields][:description]
-
-      text.downcase.scan(/[a-z]+/).each do |w|
-        list[w] += 1 unless stop_words.include? w
+  def train_on_users
+    time = Benchmark.realtime do
+      assignees.keys.each do |u|
+        user_data = data.find_all{|d| d[:fields][:assignee][:name].downcase == u}
+        user_data.each do |d|
+          text = get_text d
+          bay.train u, text if text
+        end
       end
     end
 
-    list.sort_by{|word, count| count}.reverse
+    puts "Trained in #{time} seconds"
+  end
+
+  def classify(text)
+    r = bay.classify(text)
+    r == :unknown ? r : r.sort_by{|k,v| v}.reverse
+  end
+
+  def get_text(d)
+    text = ''
+    text << d[:fields][:summary] if d[:fields][:summary]
+    text << ' '
+    text << d[:fields][:description] if d[:fields][:description]
+  end
+
+  def get_text_at(n = 0)
+    get_text data[n] if n < data.size
   end
 
   def split_on_topic(topic)
@@ -42,11 +59,6 @@ class JiraData < TextData
       end
     end
     topics 
-  end
-
-  
-  def train(file)
-
   end
 
   private

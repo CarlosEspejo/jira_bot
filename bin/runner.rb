@@ -1,17 +1,10 @@
 require_relative '../lib/jira_data'
-require_relative '../lib/basic_bayes'
+require_relative '../lib/bayes'
 require 'pry'
 
-j = JiraData.new('../issues.txt')
-d = j.split_on_topic('aicpa').join ' '
+j = JiraData.new('./issues.txt')
+j.train_on_users
 
-b = BasicBayes.new
-
-b.train [
-          {category: 'aicpa', data: d}
-        ]
-
-r = b.classify_plain_text "i need urgent xml file dump"
 
 
 binding.pry

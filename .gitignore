@@ -20,3 +20,4 @@ bin/results.txt
 results.txt
 issues.txt
 .DS_Store
+word_excludes.txt

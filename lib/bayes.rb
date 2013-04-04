@@ -1,11 +1,13 @@
 class Bayes
-  attr_reader  :stop_words, :categories, :training_count, :threshold
+  attr_reader  :stop_words, :categories, :training_count, :threshold, :excludes
 
-  def initialize
+  def initialize(excludes = [])
     @stop_words = IO.read(File.expand_path('./stop_words.txt', File.dirname(__FILE__))).split
     @categories = {}
     @training_count = Hash.new(0)
     @threshold = 1.5
+    @excludes = excludes
+    @stop_words = @stop_words & @excludes
   end
 
   def tokenize(text)
@@ -34,15 +36,15 @@ class Bayes
     th ||= threshold
 
     categories.each do|cat, v|
-      results[cat] = prob(cat, text)
+      results[cat] =  prob(cat, text)
     end
     
     first, second = results.values.sort.reverse
 
-    (first/second) > th ? format(results) : :unknown
+    (first/second) > th ? results : :unknown
   end
 
-  private
+  #private
   def word_prob(category, word)
     word_count(category, word) / document_count(category)
   end
@@ -63,14 +65,13 @@ class Bayes
   def document_prob(category, text)
     words = tokenize text
     total = 1.0
-    words.each{|w, c| total *= weighted_word_prob(category, w)}
+    words.each{|w, c| total *= word_prob(category, w)}
     total
   end
 
   def prob(category, text)
     category_prob = document_count(category)/total_document_count
-    doc_prob = document_prob category, text
-
+    doc_prob = document_prob(category, text)
     doc_prob * category_prob
   end
 
