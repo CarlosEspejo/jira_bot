@@ -3,7 +3,7 @@ require_relative '../lib/bayes'
 require 'pry'
 
 j = JiraData.new('./issues.txt')
-j.train_on_users
+#j.train_on_users
 
 
 

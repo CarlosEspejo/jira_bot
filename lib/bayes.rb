@@ -5,9 +5,9 @@ class Bayes
     @stop_words = IO.read(File.expand_path('./stop_words.txt', File.dirname(__FILE__))).split
     @categories = {}
     @training_count = Hash.new(0)
-    @threshold = 1.5
+    @threshold = 0.7
     @excludes = excludes
-    @stop_words = @stop_words & @excludes
+    @stop_words = @stop_words | @excludes
   end
 
   def tokenize(text)
@@ -40,7 +40,9 @@ class Bayes
     end
     
     first, second = results.values.sort.reverse
-
+    second ||= 1.0
+    
+    puts "#{first} / #{second} = #{first/second}"
     (first/second) > th ? results : :unknown
   end
 
@@ -65,7 +67,7 @@ class Bayes
   def document_prob(category, text)
     words = tokenize text
     total = 1.0
-    words.each{|w, c| total *= word_prob(category, w)}
+    words.each{|w, c| total *= weighted_word_prob(category, w)}
     total
   end
 
