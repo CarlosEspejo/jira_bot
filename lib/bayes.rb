@@ -36,14 +36,10 @@ class Bayes
     th ||= threshold
 
     categories.each do|cat, v|
-      results[cat] =  prob(cat, text)
+      #results[cat] =  ("%G" % prob(cat, text)).to_f
+      results[cat] =  Math.log prob(cat, text)
     end
-    
-    first, second = results.values.sort.reverse
-    second ||= 1.0
-    
-    puts "#{first} / #{second} = #{first/second}"
-    (first/second) > th ? results : :unknown
+    results
   end
 
   #private

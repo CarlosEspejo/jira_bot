@@ -13,6 +13,7 @@ class JiraData < TextData
       @bay = Bayes.new
       @word_excludes = IO.read(File.expand_path('./word_excludes.txt', File.dirname(__FILE__))).split
       get_assignees
+      
     end
   end
 
@@ -48,7 +49,12 @@ class JiraData < TextData
 
   def classify(text)
     r = bay.classify(text)
-    r == :unknown ? r : r.sort_by{|k,v| v}.reverse
+
+    first, second = r.values.sort.reverse
+    second ||= -1.0
+    
+    puts "#{first} / #{second} = #{first/second}"
+    (first/second) > 0.7 ? r : :unknown
   end
 
   def get_text(d)
