@@ -16,4 +16,4 @@ while index < project_issues_count
   puts index
 end
 
-File.write './issues.txt',issues.to_json
+File.write './issues.txt', JSON.pretty_generate(issues)

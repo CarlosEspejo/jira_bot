@@ -31,13 +31,18 @@ class Bayes
     train 'good', 'the quick brown fox jumps'
   end
 
+  def load_from_cache(cache)
+    binding.pry
+    @categories = cache
+  end
+
   def classify(text, th=nil)
     results = {}
     th ||= threshold
 
     categories.each do|cat, v|
-      #results[cat] =  ("%G" % prob(cat, text)).to_f
-      results[cat] =  Math.log prob(cat, text)
+      results[cat] = prob(cat, text)
+      #results[cat] =  Math.log prob(cat, text)
     end
     results
   end

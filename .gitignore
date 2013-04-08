@@ -22,3 +22,4 @@ issues.txt
 .DS_Store
 word_excludes.txt
 test.rb
+training_cache.json

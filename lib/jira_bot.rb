@@ -16,6 +16,10 @@ class JiraBot
     @response = party.get(uri, auth)
   end
 
+  def get_issues
+    get URI.encode '/search?jql=project=HELPSP and status=open'
+  end
+
   private
   def expand(uri)
     "#{base_url}#{uri}"
