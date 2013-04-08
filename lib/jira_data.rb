@@ -40,11 +40,11 @@ class JiraData < TextData
   def load_training
     @training_cache = JSON.parse(IO.read('./training_cache.json')) #if File.exists?(File.expand_path('./training_cache.json', File.dirname(__FILE__)))
     @bay.load_from_cache @training_cache if @training_cache
-    binding.pry
   end
 
   def cache_training
-    File.write './training_cache.json', JSON.pretty_generate(bay.categories)
+    File.write './training_cache.json', JSON.pretty_generate({data: bay.categories, training_count: bay.training_count})
+    puts 'cached training at ./training_cache.json'
   end
 
   def train(category, text)
@@ -63,8 +63,8 @@ class JiraData < TextData
     first, second = r.values.sort.reverse
     second ||= 1.0
     
-    puts "#{first} / #{second} = #{first / second}"
-    @results = (first/second) > 0.5 ? r : :unknown
+    #puts "#{first} / #{second} = #{first / second}"
+    @results = (first/second) > 0.7 ? r : :unknown
   end
 
   def get_text(d)

@@ -32,8 +32,12 @@ class Bayes
   end
 
   def load_from_cache(cache)
-    binding.pry
-    @categories = cache
+    cache['data'].each do |category, words| 
+      @categories[category] = Hash.new(0)
+      words.each{|k,v| @categories[category][k] = v}
+    end
+
+    @training_count = cache['training_count']
   end
 
   def classify(text, th=nil)
