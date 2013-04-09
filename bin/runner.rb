@@ -3,8 +3,12 @@ require_relative '../lib/bayes'
 require_relative '../lib/word_count_stats'
 require_relative '../lib/jira_bot'
 require 'logger'
+require 'fileutils'
 
 require 'pry'
+
+FileUtils.remove './classify.log', :force => true
+FileUtils.remove './issue_history.txt', :force => true
 
 j = JiraData.new(uri: './issues.txt', classifier: Bayes.new)
 j.load_training
@@ -23,10 +27,12 @@ File.open './issue_history.txt', 'a' do |f|
       f.puts i['key']
       puts i['fields']['summary']
 
+      binding.pry
+
       j.classify "#{i['fields']['summary']} #{i['fields']['description']}"
 
       puts j.max
-      logger.info "Guess #{j.max} for #{i['fields']['summary']}"
+      logger.debug "#{j.max} for #{i['fields']['summary']}"
 
       puts "\n\n"
     end

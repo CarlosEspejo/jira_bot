@@ -17,5 +17,10 @@ class AnalyzeIssues
     get_text data[n] if n < data.size
   end
 
+  def tokenize(text)
+    words = Hash.new(0)
+    text.downcase.scan(/[a-z]+/).each{|w| words[w] += 1 unless stop_words.include? w}
+    words
+  end
 
 end

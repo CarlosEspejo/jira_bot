@@ -16,6 +16,11 @@ class JiraBot
     @response = party.get(uri, auth)
   end
 
+  def put(uri, data)
+    binding.pry
+    @response = party.put(uri, :update => data['update'], :headers => {'Content-Type' => 'application/json'}, :basic_auth => auth[:basic_auth])
+  end
+
   def get_issues
     get URI.encode '/search?jql=project=HELPSP and status=open'
   end

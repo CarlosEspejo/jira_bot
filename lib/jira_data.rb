@@ -29,13 +29,11 @@ class JiraData < TextData
 
   def classify(text)
     r = class_result(text)
-
     first, second = r.values.sort.reverse
-    second ||= 1.0
-
+    second ||= 0.5
 
     #puts "#{first} / #{second} = #{first / second}"
-    @results = (first/second) > 0.7 ? r : :unknown
+    @results = (first/second) > 1.5 ? r : :unknown
   end
 
   def max

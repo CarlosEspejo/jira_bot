@@ -24,3 +24,4 @@ word_excludes.txt
 test.rb
 training_cache.json
 issue_history.txt
+*.log
