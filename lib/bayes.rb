@@ -1,13 +1,11 @@
 class Bayes
-  attr_reader  :stop_words, :categories, :training_count, :threshold, :excludes
+  attr_reader  :stop_words, :list, :training_count, :threshold
 
-  def initialize(excludes = [])
+  def initialize
     @stop_words = IO.read(File.expand_path('./stop_words.txt', File.dirname(__FILE__))).split
-    @categories = {}
+    @list = {}
     @training_count = Hash.new(0)
     @threshold = 0.7
-    @excludes = excludes
-    @stop_words = @stop_words | @excludes
   end
 
   def tokenize(text)
@@ -17,10 +15,10 @@ class Bayes
   end
 
   def train(category, text)
-    categories[category] ||= Hash.new(0)
-    tokenize(text).each{|w, c| categories[category][w] += c}
+    list[category] ||= Hash.new(0)
+    tokenize(text).each{|w, c| list[category][w] += c}
     training_count[category] += 1
-    categories
+    list
   end
 
   def sample_train
@@ -33,18 +31,21 @@ class Bayes
 
   def load_from_cache(cache)
     cache['data'].each do |category, words| 
-      @categories[category] = Hash.new(0)
-      words.each{|k,v| @categories[category][k] = v}
+      @list[category] = Hash.new(0)
+      words.each{|k,v| @list[category][k] = v}
     end
 
-    @training_count = cache['training_count']
+    cache['training_count'].each do |category, count|
+      @training_count[category] = Hash.new(0)
+      @training_count[category] = count
+    end
   end
 
   def classify(text, th=nil)
     results = {}
     th ||= threshold
 
-    categories.each do|cat, v|
+    list.each do|cat, v|
       results[cat] = prob(cat, text)
       #results[cat] =  Math.log prob(cat, text)
     end
@@ -57,8 +58,8 @@ class Bayes
   end
 
   def word_count(category, word)
-    return 0.0 unless categories.has_key? category
-    categories[category][word].to_f
+    return 0.0 unless list.has_key? category
+    list[category][word].to_f
   end
 
   def document_count(category)
@@ -84,7 +85,7 @@ class Bayes
 
   def weighted_word_prob(category, word, weight=1.0, ap=0.5)
     basic_prob = word_prob(category, word)
-    totals = categories.map{|cat, c| categories[cat][word]}.inject{|sum, v| sum + v}
+    totals = list.map{|cat, c| list[cat][word]}.inject{|sum, v| sum + v}
     ((weight * ap) + (totals * basic_prob)) / (weight + totals)
   end
 
