@@ -27,8 +27,6 @@ File.open './issue_history.txt', 'a' do |f|
       f.puts i['key']
       puts i['fields']['summary']
 
-      binding.pry
-
       j.classify "#{i['fields']['summary']} #{i['fields']['description']}"
 
       puts j.max

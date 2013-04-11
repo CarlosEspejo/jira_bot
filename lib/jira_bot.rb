@@ -1,4 +1,5 @@
 require 'httparty'
+require 'json'
 
 class JiraBot
   attr_reader :username, :password, :base_url, :auth, :response, :party
@@ -17,12 +18,19 @@ class JiraBot
   end
 
   def put(uri, data)
-    binding.pry
-    @response = party.put(uri, :update => data['update'], :headers => {'Content-Type' => 'application/json'}, :basic_auth => auth[:basic_auth])
+    options = {body: data.to_json}
+    options = options.merge auth
+    options[:headers] =  {'Content-Type' => 'application/json'}
+
+    @response = party.put(uri, options)
   end
 
   def get_issues
     get URI.encode '/search?jql=project=HELPSP and status=open'
+  end
+
+  def assign_user(issue_uri, username)
+    put issue_uri, {fields: {assignee: {name: username}}}
   end
 
   private

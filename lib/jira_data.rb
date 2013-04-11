@@ -14,7 +14,7 @@ class JiraData < TextData
   end
 
   def load_training
-    @training_cache = JSON.parse(IO.read('./training_cache.json'))
+    @training_cache = JSON.parse(IO.read(File.expand_path('./training_cache.json', File.dirname(__FILE__))))
     @classifier.load_from_cache @training_cache if @training_cache
   end
 
