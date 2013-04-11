@@ -15,7 +15,7 @@ loop do
 
     `ruby runner.rb`
 
-    sleep 10
+    sleep 5 * 60
   rescue Exception => e
     logger.debug "Error: #{e}"
   end
