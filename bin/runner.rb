@@ -7,8 +7,8 @@ require 'fileutils'
 
 require 'pry'
 
-FileUtils.remove './classify.log', :force => true
-FileUtils.remove './issue_history.txt', :force => true
+#FileUtils.remove './classify.log', :force => true
+#FileUtils.remove './issue_history.txt', :force => true
 
 j = JiraData.new(uri: './issues.txt', classifier: Bayes.new)
 j.load_training
