@@ -37,7 +37,7 @@ class JiraData < TextData
   end
 
   def max
-    results.max_by{|k,v| v} if results && results != :unknown
+    (results && results != :unknown) ? results.max_by{|k,v| v}: [results]
   end
 
   def train_on_users(cache = true)
