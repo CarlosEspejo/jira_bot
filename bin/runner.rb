@@ -22,13 +22,22 @@ logger = Logger.new('./classify.log')
 File.open './issue_history.txt', 'a' do |f|
   response['issues'].each do |i|
     unless issue_history.include? i['key']
-      f.puts i['key']
-      puts i['fields']['summary']
 
+      current_assignee = i['fields']['assignee']['emailAddress'].split('@').first.downcase
+      f.puts i['key']
       j.classify "#{i['fields']['summary']} #{i['fields']['description']}"
 
-      puts j.max
-      logger.debug "#{j.max} for #{i['fields']['summary']}"
+      puts "#{i['fields']['summary']} \n current #{current_assignee} new #{j.assignee}"
+      logger.debug "Old: #{current_assignee} New: #{j.max} for #{i['fields']['summary']}"
+
+      assignee = j.assignee
+
+      unless assignee == :unknown || assignee == 'schacko' || assignee == current_assignee
+        bot.assign_user i['self'], assignee
+        message = "assigned #{assignee} to #{i['key']}"
+        puts message
+        logger.debug message
+      end
 
       puts "\n\n"
     end

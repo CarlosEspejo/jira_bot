@@ -40,6 +40,10 @@ class JiraData < TextData
     (results && results != :unknown) ? results.max_by{|k,v| v}: [results]
   end
 
+  def assignee
+    max[0]
+  end
+
   def train_on_users(cache = true)
     assignees.keys.each do |u|
       user_data = data.find_all{|d| d[:fields][:assignee][:name].downcase == u}
